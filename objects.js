@@ -4,6 +4,9 @@ export function getList(data, id){
 export function getListItem(data,list,id){
     return getList(data,list).data_rows.find(e=>e.id == id);
 }
+
+let keepOriginal = false;
+
 export class Subject {
 
     data;
@@ -16,7 +19,7 @@ export class Subject {
 
     constructor(data,json){
         this.data = data;
-        this.json = json;
+        this.json = keepOriginal ? json : null;
 
         this.name = json.name;
         this.shortName = json.short;
@@ -40,15 +43,15 @@ export class Lesson {
 
     constructor(data,json){
         this.data = data;
-        this.json = json;
+        this.json = keepOriginal ? json : null;
 
-        this.classIds = this.json.classids;
-        this.id = this.json.id;
+        this.classIds = json.classids;
+        this.id = json.id;
         this.teacherIds = json.teacherids;
         this.teachers = this.teacherIds.map(e=>new Teacher(data,getListItem(data.json,"teachers",e)));
         this.durationPeriods = json.durationperiods;
-        this.subject = new Subject(this.data,getListItem(this.data.json,"subjects",this.json.subjectid));
-        this.groups = this.json.groupids.map(e=>{
+        this.subject = new Subject(this.data,getListItem(this.data.json,"subjects",json.subjectid));
+        this.groups = json.groupids.map(e=>{
             return new Group(this.data,getListItem(this.data.json,"groups",e));
         });
         this.color = this.groups[0]?.color;
@@ -59,6 +62,8 @@ export class Entry {
     data;
     json;
 
+    id;
+    lessonId;
     lesson;
     period;
 
@@ -74,14 +79,16 @@ export class Entry {
 
     constructor(data,json){
         this.data = data;
-        this.json = json;
+        this.json = keepOriginal ? json : null;
         this.days = json.days;
 
-        let el = getListItem(this.data.json,"lessons",this.json.lessonid);
+        this.lessonId = json.lessonid;
+        let el = getListItem(this.data.json,"lessons",this.lessonId);
         /* console.log("el",el); */
 
         this.lesson = new Lesson(this.data,el);
         this.period = json.period;
+        this.id = json.id;
         this.classrooms = json.classroomids.map(e=>new Classroom(this.data,getListItem(this.data.json,"classrooms",e)))
     }
 }
@@ -96,7 +103,7 @@ export class Classroom {
 
     constructor(data,json){
         this.data = data;
-        this.json = json;
+        this.json = keepOriginal ? json : null;
 
         this.id = json.id;
         this.name = json.name;
@@ -138,7 +145,7 @@ export class Day {
 
     constructor(data,json){
         this.data = data;
-        this.json = json;
+        this.json = keepOriginal ? json : null;
         this.vals = json.vals;
         this.val = json.val;
         this.shortName = json.short;
@@ -158,7 +165,7 @@ export class Class {
 
     constructor(data,json){
         this.data = data;
-        this.json = json;
+        this.json = keepOriginal ? json : null;
 
         this.id = json.id;
         this.name = json.name;
@@ -175,7 +182,7 @@ export class Teacher {
 
     constructor(data,json){
         this.data = data;
-        this.json = json;
+        this.json = keepOriginal ? json : null;
 
         this.name = json.short;
         this.id = json.id;
@@ -194,7 +201,7 @@ export class Group {
 
     constructor(data,json){
         this.data = data;
-        this.json = json;
+        this.json = keepOriginal ? json : null;
         this.color = json.color;
         this.entireClass = json.entireclass;
         this.name = json.name;
@@ -215,7 +222,7 @@ export class Period {
 
     constructor(data,json){
         this.data = data;
-        this.json = json;
+        this.json = keepOriginal ? json : null;
 
         this.name = json.name;
         this.id = json.id;
