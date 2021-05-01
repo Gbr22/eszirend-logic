@@ -56,6 +56,27 @@ export class Lesson {
         });
         this.color = this.groups[0]?.color;
     }
+    formatGroups({shorten}){
+        function shortenGroupName(name){
+            if (!shorten){
+                return name;
+            }
+            let obj = {
+                "Angol":"Ang",
+                "Német":"Ném",
+                "Környezetvédelem":"♻️",
+                "Informatika":"🖱️",
+                "Mechatronika":"🛠️",
+                "Ügyvitel":"Ügyv",
+                "Közgazdaság":"Közg",
+            };
+            for (let p in obj){
+                name = name.replace(p,obj[p]);
+            }
+            return name;
+        }
+        return [...new Set(this.groups.map(e=>shortenGroupName(e.name)))].join(", ");
+    }
 }
 export class Entry {
 
@@ -76,6 +97,9 @@ export class Entry {
         }   
         return arr;
     }
+    get periodObjects(){
+        return this.data.periods.filter(e=>this.periods.includes(e.id));
+    }
 
     constructor(data,json){
         this.data = data;
@@ -90,6 +114,38 @@ export class Entry {
         this.period = json.period;
         this.id = json.id;
         this.classrooms = json.classroomids.map(e=>new Classroom(this.data,getListItem(this.data.json,"classrooms",e)))
+    }
+
+    getCustomColor(seedrandom){
+        let entry = this;
+        let map = {
+            "Csoport1":"hsl(210, 100%, 66%)",
+            "Csoport2":"hsl(0, 100%, 66%)",
+            "Környezetvédelem":"hsl(156, 100%, 66%)",
+            "Informatika":"hsl(204, 100%, 66%)",
+            "Közgazdaság":"#F7AD94",
+            "Ügyvitel":"#a1e3a1",
+            "Pénzügy":"#7FDBFF",
+            "Mechatronika":"hsl(180, 20%, 66%)",
+        }
+        let aliases = {
+            "Csoport-1":"Csoport1",
+            "Csoport-2":"Csoport2",
+            "Csoprot-2":"Csoport2",
+        };
+        for(let key in aliases){
+            map[key] = map[aliases[key]];
+        }
+        let groupName = entry.lesson.groups[0].name;
+
+        if (entry.lesson.groups[0].entireClass){
+            return null;
+        } else if (map[groupName]) {
+            return map[groupName];
+        } else {
+            return `hsl(${Math.floor(seedrandom(entry.lesson.groups[0].id)()*300)}, 100%, 75%)`;
+            /* return entry.lesson.groups[0].color; */
+        }
     }
 }
 export class Classroom {
