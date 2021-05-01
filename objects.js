@@ -51,8 +51,8 @@ export class Lesson {
         this.teachers = this.teacherIds.map(e=>new Teacher(data,getListItem(data.json,"teachers",e)));
         this.durationPeriods = json.durationperiods;
         this.subject = new Subject(this.data,getListItem(this.data.json,"subjects",json.subjectid));
-        this.groups = json.groupids.map(e=>{
-            return new Group(this.data,getListItem(this.data.json,"groups",e));
+        this.groups = json.groupids.map(id=>{
+            return this.data.groups.find(g=>g.id == id);
         });
         this.color = this.groups[0]?.color;
     }
@@ -153,6 +153,26 @@ export class Day {
         this.id = json.id;
     }
 }
+export class Division {
+
+    data;
+    json;
+
+    id;
+    groupIds;
+    groups;
+
+    constructor(data,json){
+        this.data = data;
+        this.json = keepOriginal ? json : null;
+
+        this.id = json.id;
+        this.groupIds = json.groupids;
+    }
+    get groups(){
+        return this.data.groups.filter(group=>this.groupIds.includes(group.id));
+    }
+}
 export class Class {
 
     data;
@@ -197,6 +217,7 @@ export class Group {
     entireClass;
     name;
     divisionId;
+    division;
     id;
 
     constructor(data,json){
@@ -206,6 +227,7 @@ export class Group {
         this.entireClass = json.entireclass;
         this.name = json.name;
         this.divisionId = json.divisionid;
+        this.division = this.data.divisions.find(e=>e.id == this.divisionId);
         this.id = json.id;
     }
 }
@@ -245,12 +267,18 @@ export class Info {
     }
 }
 export class DataRoot {
-    periods;
 
     json;
 
-    classes = [];
-    days = [];
+    periods;
+
+    divisions;
+    groups;
+
+    classes;
+    days;
+    entries;
+    
     info;
 
     constructor(json){
@@ -258,9 +286,13 @@ export class DataRoot {
         let periods = getList(this.json,"periods").data_rows.map(e=>new Period(this,e));
         this.periods = periods;
 
+        this.divisions = getList(this.json,"divisions").data_rows.map(e=>new Division(this,e));
+        this.groups = getList(this.json,"groups").data_rows.map(e=>new Group(this,e));
+
         this.classes = getList(this.json,"classes").data_rows.map(e=>new Class(this,e));
         this.days = getList(this.json,"daysdefs").data_rows.map(e=>new Day(this,e));
         this.entries = getList(this.json,"cards").data_rows.map(e=>new Entry(this,e));
+
         this.info = new Info(this,getList(this.json,"globals").data_rows[0]);
     }
 }
