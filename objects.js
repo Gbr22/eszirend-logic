@@ -352,3 +352,25 @@ export class DataRoot {
         this.info = new Info(this,getList(this.json,"globals").data_rows[0]);
     }
 }
+export class Versions {
+
+    json;
+
+    timetables;
+    
+    currentId;
+    current;
+
+    constructor(json){
+        this.timetables = json.r.regular.timetables.map(e=>{
+            return {
+                id:e.tt_num,
+                year:e.year,
+                text: e.text,
+                hidden: e.hidden,
+            }
+        })
+        this.currentId = json.r.regular.default_num;
+        this.current = this.timetables.find(e=>e.id == this.currentId);
+    }
+}

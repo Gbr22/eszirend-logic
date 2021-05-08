@@ -1,6 +1,25 @@
-module.exports.getData = function(fetch){
+module.exports.getData = function(fetch,id){
     return fetch("https://eszi.edupage.org/timetable/server/regulartt.js?__func=regularttGetData",{
         method:"POST",
-        body:`{"__args":[null,"74"],"__gsh":"00000000"}`,
-    }).then(r=>r.json());
+        body: JSON.stringify({
+            "__args":[null,id.toString()],
+            "__gsh":"00000000"
+        }),
+    }).then(r=>r.text());
+}
+module.exports.getVersions = function(fetch){
+    let date = new Date();
+    let month = date.getMonth()+1;
+    let year = date.getFullYear();
+    let schoolYear = year;
+    if (month < 9){ 
+        schoolYear--;
+    }
+    return fetch("https://eszi.edupage.org/timetable/server/ttviewer.js?__func=getTTViewerData", {
+        "body": JSON.stringify({
+            "__args":[null,schoolYear],
+            "__gsh":"00000000"
+        }),
+        "method": "POST",
+    }).then(r=>r.text());
 }
