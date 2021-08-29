@@ -12,7 +12,7 @@ module.exports.getVersions = function(fetch){
     let month = date.getMonth()+1;
     let year = date.getFullYear();
     let schoolYear = year;
-    if (month < 9){ 
+    if (month < 8){ 
         schoolYear--;
     }
     return fetch("https://eszi.edupage.org/timetable/server/ttviewer.js?__func=getTTViewerData", {
