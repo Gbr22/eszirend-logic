@@ -87,6 +87,7 @@ export class Entry {
     lessonId;
     lesson;
     period;
+    weekId;
 
     classrooms = [];
 
@@ -99,6 +100,9 @@ export class Entry {
     }
     get periodObjects(){
         return this.data.periods.filter(e=>this.periods.includes(e.id));
+    }
+    get week(){
+        return this.data.weeks.filter(e=>e.type != "any" && e.vals.includes(this.weekId))[0];
     }
 
     constructor(data,json){
@@ -113,6 +117,7 @@ export class Entry {
         this.lesson = new Lesson(this.data,el);
         this.period = json.period;
         this.id = json.id;
+        this.weekId = json.weeks;
         this.classrooms = json.classroomids.map(e=>new Classroom(this.data,getListItem(this.data.json,"classrooms",e)))
     }
 
@@ -206,6 +211,33 @@ export class Day {
         this.val = json.val;
         this.shortName = json.short;
         this.name = json.name;
+        this.id = json.id;
+    }
+}
+export class Week {
+
+    data;
+    json;
+    
+    vals;
+    val;
+    name;
+    shortName;
+    id;
+    type;
+
+    matches(v){
+        return this.vals.includes(v);
+    }
+
+    constructor(data,json){
+        this.data = data;
+        this.json = keepOriginal ? json : null;
+        this.vals = json.vals;
+        this.val = json.val;
+        this.shortName = json.short;
+        this.name = json.name;
+        this.type = json.typ;
         this.id = json.id;
     }
 }
@@ -333,6 +365,7 @@ export class DataRoot {
 
     classes;
     days;
+    weeks;
     entries;
     
     info;
@@ -347,6 +380,7 @@ export class DataRoot {
 
         this.classes = getList(this.json,"classes").data_rows.map(e=>new Class(this,e));
         this.days = getList(this.json,"daysdefs").data_rows.map(e=>new Day(this,e));
+        this.weeks = getList(this.json,"weeksdefs").data_rows.map(e=>new Week(this,e));
         this.entries = getList(this.json,"cards").data_rows.map(e=>new Entry(this,e));
 
         this.info = new Info(this,getList(this.json,"globals").data_rows[0]);
