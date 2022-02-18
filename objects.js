@@ -402,6 +402,8 @@ export class Versions {
                 year:e.year,
                 text: e.text,
                 hidden: e.hidden,
+                dateFromRaw: e.datefrom,
+                dateFrom: new Date(e.datefrom)
             }
         })
         this.currentId = json.r.regular.default_num;
